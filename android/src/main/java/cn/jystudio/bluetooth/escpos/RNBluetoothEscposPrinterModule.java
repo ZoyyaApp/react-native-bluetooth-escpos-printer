@@ -20,6 +20,8 @@ import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import javax.annotation.Nullable;
 import java.nio.charset.Charset;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class RNBluetoothEscposPrinterModule extends ReactContextBaseJavaModule
         implements BluetoothServiceStateObserver {
@@ -32,6 +34,9 @@ public class RNBluetoothEscposPrinterModule extends ReactContextBaseJavaModule
 
     private int deviceWidth = WIDTH_58;
     private BluetoothService mService;
+
+ // Use a single-threaded executor to execute tasks sequentially
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
 
     public RNBluetoothEscposPrinterModule(ReactApplicationContext reactContext,
@@ -131,6 +136,7 @@ public class RNBluetoothEscposPrinterModule extends ReactContextBaseJavaModule
 
     @ReactMethod
     public void printText(String text, @Nullable  ReadableMap options, final Promise promise) {
+         executor.submit(() -> {
         try {
             String encoding = "GBK";
             int codepage = 0;
@@ -159,6 +165,7 @@ public class RNBluetoothEscposPrinterModule extends ReactContextBaseJavaModule
         }catch (Exception e){
             promise.reject(e.getMessage(),e);
         }
+         });
     }
 
     @ReactMethod
