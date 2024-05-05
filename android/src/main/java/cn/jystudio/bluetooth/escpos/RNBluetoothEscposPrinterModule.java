@@ -74,24 +74,27 @@ public class RNBluetoothEscposPrinterModule extends ReactContextBaseJavaModule
 
     @ReactMethod
     public void printAndFeed(int feed,final Promise promise){
+          executor.submit(() -> {
         if(sendDataByte(PrinterCommand.POS_Set_PrtAndFeedPaper(feed))){
             promise.resolve(null);
         }else{
             promise.reject("COMMAND_NOT_SEND");
-        }
+        }});
     }
 
     @ReactMethod
     public void printerLeftSpace(int sp,final Promise promise){
+          executor.submit(() -> {
         if(sendDataByte(PrinterCommand.POS_Set_LeftSP(sp))){
             promise.resolve(null);
         }else{
             promise.reject("COMMAND_NOT_SEND");
-        }
+        }});
     }
 
     @ReactMethod
     public void printerLineSpace(int sp,final Promise promise){
+          executor.submit(() -> {
         byte[] command = PrinterCommand.POS_Set_DefLineSpace();
         if(sp>0){
             command = PrinterCommand.POS_Set_LineSpace(sp);
@@ -100,7 +103,7 @@ public class RNBluetoothEscposPrinterModule extends ReactContextBaseJavaModule
             promise.reject("COMMAND_NOT_SEND");
         }else{
             promise.resolve(null);
-        }
+        }});
     }
 
     /**
@@ -109,11 +112,12 @@ public class RNBluetoothEscposPrinterModule extends ReactContextBaseJavaModule
      */
     @ReactMethod
     public void printerUnderLine(int line,final Promise promise){
+            executor.submit(() -> {
         if(sendDataByte(PrinterCommand.POS_Set_UnderLine(line))){
             promise.resolve(null);
         }else{
             promise.reject("COMMAND_NOT_SEND");
-        }
+        }});
     }
 
     /**
@@ -125,12 +129,12 @@ public class RNBluetoothEscposPrinterModule extends ReactContextBaseJavaModule
      */
     @ReactMethod
     public void printerAlign(int align,final Promise promise){
-        Log.d(TAG,"Align:"+align);
+         executor.submit(() -> {
         if(sendDataByte(PrinterCommand.POS_S_Align(align))){
             promise.resolve(null);
         }else{
             promise.reject("COMMAND_NOT_SEND");
-        }
+        }});
     }
 
 
@@ -171,6 +175,8 @@ public class RNBluetoothEscposPrinterModule extends ReactContextBaseJavaModule
     @ReactMethod
     public void printColumn(ReadableArray columnWidths,ReadableArray columnAligns,ReadableArray columnTexts,
                             @Nullable ReadableMap options,final Promise promise){
+
+                                  executor.submit(() -> {
         if(columnWidths.size()!=columnTexts.size() || columnWidths.size()!=columnAligns.size()){
             promise.reject("COLUMN_WIDTHS_ALIGNS_AND_TEXTS_NOT_MATCH");
             return;
@@ -315,6 +321,7 @@ public class RNBluetoothEscposPrinterModule extends ReactContextBaseJavaModule
             }
         }
         promise.resolve(null);
+                                  });
     }
 
     @ReactMethod
@@ -324,6 +331,7 @@ public class RNBluetoothEscposPrinterModule extends ReactContextBaseJavaModule
 
     @ReactMethod
     public void printPic(String base64encodeStr, @Nullable  ReadableMap options) {
+          executor.submit(() -> {
         int width = 0;
         int leftPadding = 0;
         if(options!=null){
@@ -355,7 +363,7 @@ public class RNBluetoothEscposPrinterModule extends ReactContextBaseJavaModule
             sendDataByte(PrinterCommand.POS_Set_PrtAndFeedPaper(30));
             sendDataByte(PrinterCommand.POS_Set_Cut(1));
             sendDataByte(PrinterCommand.POS_Set_PrtInit());
-        }
+        }});
     }
 
 
@@ -373,24 +381,27 @@ public class RNBluetoothEscposPrinterModule extends ReactContextBaseJavaModule
      */
     @ReactMethod
     public void rotate(int rotate,final Promise promise) {
+          executor.submit(() -> {
         if(sendDataByte(PrinterCommand.POS_Set_Rotate(rotate))){
             promise.resolve(null);
         }else{
             promise.reject("COMMAND_NOT_SEND");
-        }
+        }});
     }
 
     @ReactMethod
     public void setBlob(int weight,final Promise promise) {
+          executor.submit(() -> {
         if(sendDataByte(PrinterCommand.POS_Set_Bold(weight))){
             promise.resolve(null);
         }else{
             promise.reject("COMMAND_NOT_SEND");
-        }
+        }});
     }
 
     @ReactMethod
     public void printQRCode(String content, int size, int correctionLevel, final Promise promise) {
+          executor.submit(() -> {
         try {
             Log.i(TAG, "生成的文本：" + content);
             // 把输入的文本转为二维码
@@ -431,37 +442,41 @@ public class RNBluetoothEscposPrinterModule extends ReactContextBaseJavaModule
             }
         } catch (Exception e) {
             promise.reject(e.getMessage(), e);
-        }
+        }});
     }
 
     @ReactMethod
     public void printBarCode(String str, int nType, int nWidthX, int nHeight,
                              int nHriFontType, int nHriFontPosition) {
+                                  executor.submit(() -> {
         byte[] command = PrinterCommand.getBarCodeCommand(str, nType, nWidthX, nHeight, nHriFontType, nHriFontPosition);
         sendDataByte(command);
+                                  });
     }
 
     @ReactMethod
     public void openDrawer(int nMode, int nTime1, int nTime2) {
+          executor.submit(() -> {
         try{
             byte[] command = PrinterCommand.POS_Set_Cashbox(nMode, nTime1, nTime2);
             sendDataByte(command);
 
          }catch (Exception e){
             Log.d(TAG, e.getMessage());
-        }
+        }});
     }
 
 
     @ReactMethod
     public void cutOnePoint() {
+          executor.submit(() -> {
         try{
             byte[] command = PrinterCommand.POS_Cut_One_Point();
             sendDataByte(command);
 
          }catch (Exception e){
             Log.d(TAG, e.getMessage());
-        }
+        }});
     }    
 
     private boolean sendDataByte(byte[] data) {
